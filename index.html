@@ -442,8 +442,8 @@
         let characteristic = null;
         
         // 蓝牙UUID配置 (需要与ESP32代码匹配)
-        const SERVICE_UUID = '0000ff00-0000-1000-8000-00805f9b34fb';
-        const CHARACTERISTIC_UUID = '0000ff01-0000-1000-8000-00805f9b34fb';
+        const SERVICE_UUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
+        const CHARACTERISTIC_UUID = '19B10005-E8F2-537E-4F6C-D104768A1214';
         
         // DOM元素
         const bluetoothStatus = document.getElementById('bluetooth-status');
@@ -703,4 +703,5 @@
         window.addEventListener('load', initApp);
     </script>
 </body>
+
 </html>
