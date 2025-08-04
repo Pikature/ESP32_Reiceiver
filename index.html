@@ -442,8 +442,8 @@
         let characteristic = null;
         
         // 蓝牙UUID配置 (需要与ESP32代码匹配)
-        const SERVICE_UUID = '19B10000-E8F2-537E-4F6C-D104768A1214';
-        const CHARACTERISTIC_UUID = '19B10005-E8F2-537E-4F6C-D104768A1214';
+        const SERVICE_UUID = '19b10000-e8f2-537e-4f6c-d104768a1214';  // 全部小写
+        const CHARACTERISTIC_UUID = '19b10005-e8f2-537e-4f6c-d104768a1214';  // 全部小写
         
         // DOM元素
         const bluetoothStatus = document.getElementById('bluetooth-status');
@@ -529,7 +529,7 @@
             try {
                 // 请求蓝牙设备
                 const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: [SERVICE_UUID] }],
+                    filters: [{ name: 'OpenGlass' }],
                     optionalServices: [SERVICE_UUID]
                 });
                 
@@ -705,3 +705,4 @@
 </body>
 
 </html>
+
