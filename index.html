@@ -42,17 +42,17 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .app-header h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #4dabf7;
-        }
+            .app-header h1 {
+                font-size: 1.6rem;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #4dabf7;
+            }
 
-        .app-header p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
+            .app-header p {
+                font-size: 0.9rem;
+                opacity: 0.8;
+            }
 
         .status-bar {
             display: flex;
@@ -75,10 +75,10 @@
             background: #ff6b6b;
         }
 
-        .status-indicator.connected {
-            background: #51cf66;
-            box-shadow: 0 0 10px rgba(81, 207, 102, 0.5);
-        }
+            .status-indicator.connected {
+                background: #51cf66;
+                box-shadow: 0 0 10px rgba(81, 207, 102, 0.5);
+            }
 
         .status-text {
             font-size: 0.85rem;
@@ -93,13 +93,13 @@
             border: 1px solid rgba(77, 171, 247, 0.3);
         }
 
-        .device-info h3 {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            color: #4dabf7;
-        }
+            .device-info h3 {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 15px;
+                color: #4dabf7;
+            }
 
         .device-details {
             display: grid;
@@ -114,11 +114,11 @@
             font-size: 0.85rem;
         }
 
-        .detail-item .label {
-            opacity: 0.7;
-            font-size: 0.75rem;
-            margin-bottom: 5px;
-        }
+            .detail-item .label {
+                opacity: 0.7;
+                font-size: 0.75rem;
+                margin-bottom: 5px;
+            }
 
         .photo-container {
             margin: 20px;
@@ -140,16 +140,16 @@
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .photo-placeholder i {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: rgba(77, 171, 247, 0.3);
-        }
+            .photo-placeholder i {
+                font-size: 4rem;
+                margin-bottom: 20px;
+                color: rgba(77, 171, 247, 0.3);
+            }
 
-        .photo-placeholder p {
-            margin-top: 10px;
-            font-size: 0.9rem;
-        }
+            .photo-placeholder p {
+                margin-top: 10px;
+                font-size: 0.9rem;
+            }
 
         .received-photo {
             width: 100%;
@@ -180,10 +180,10 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
+            .btn:active {
+                transform: translateY(3px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
 
         .btn-primary {
             background: linear-gradient(to right, #4dabf7, #339af0);
@@ -224,13 +224,13 @@
             transition: background 0.2s;
         }
 
-        .device-item:last-child {
-            border-bottom: none;
-        }
+            .device-item:last-child {
+                border-bottom: none;
+            }
 
-        .device-item:hover {
-            background: rgba(77, 171, 247, 0.2);
-        }
+            .device-item:hover {
+                background: rgba(77, 171, 247, 0.2);
+            }
 
         .device-icon {
             font-size: 1.2rem;
@@ -280,9 +280,9 @@
             z-index: 1000;
         }
 
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-        }
+            .notification.show {
+                transform: translateX(-50%) translateY(0);
+            }
 
         .info-panel {
             background: rgba(20, 30, 60, 0.7);
@@ -293,13 +293,13 @@
             line-height: 1.5;
         }
 
-        .info-panel h4 {
-            color: #4dabf7;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+            .info-panel h4 {
+                color: #4dabf7;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
 
         .error {
             color: #ff6b6b;
@@ -353,6 +353,18 @@
             display: none;
             color: #4dabf7;
             margin-top: 10px;
+        }
+
+        /* 修复后的新样式 */
+        .frame-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            display: none;
         }
     </style>
 </head>
@@ -412,6 +424,7 @@
                 <p>连接ESP32后，照片将显示在此处</p>
             </div>
             <img src="" class="received-photo" id="received-photo" alt="接收的照片">
+            <div class="frame-counter" id="frame-counter">帧: 0/0</div>
             <div class="progress-container" id="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
@@ -462,9 +475,11 @@
 
         // 照片接收状态
         let isReceivingPhoto = false;
-        let photoChunks = [];
+        let photoChunks = {};
         let receivedBytes = 0;
         let totalBytes = 0;
+        let maxFrameIndex = -1;
+        let frameCounter = 0;
 
         // 蓝牙UUID配置 (需要与ESP32代码匹配)
         const SERVICE_UUID = '19b10000-e8f2-537e-4f6c-d104768a1214';
@@ -491,6 +506,7 @@
         const notification = document.getElementById('notification');
         const bluetoothError = document.getElementById('bluetooth-error');
         const receivingIndicator = document.getElementById('receiving-indicator');
+        const frameCounterEl = document.getElementById('frame-counter');
 
         // 初始化应用
         function initApp() {
@@ -629,20 +645,36 @@
             const value = event.target.value;
             const data = new Uint8Array(value.buffer);
 
-            // 检查是否为结束帧 (0xFF, 0xFF)
-            if (data[0] === 0xFF && data[1] === 0xFF) {
+            // 提取帧序号 (前2字节)
+            const frameIndex = (data[0] << 8) | data[1];
+
+            // 检查是否为结束帧 (0xFFFF)
+            if (frameIndex === 0xFFFF) {
                 // 照片接收完成
                 isReceivingPhoto = false;
                 receivingIndicator.style.display = 'none';
+                frameCounterEl.style.display = 'none';
 
                 // 合并所有接收到的数据块
-                const totalLength = photoChunks.reduce((acc, chunk) => acc + chunk.length, 0);
+                let totalLength = 0;
+
+                // 计算总字节数
+                for (let i = 0; i <= maxFrameIndex; i++) {
+                    if (photoChunks[i]) {
+                        totalLength += photoChunks[i].length;
+                    }
+                }
+
+                // 创建Uint8Array保存完整照片数据
                 const photoData = new Uint8Array(totalLength);
                 let offset = 0;
 
-                for (const chunk of photoChunks) {
-                    photoData.set(chunk, offset);
-                    offset += chunk.length;
+                // 按帧序号顺序填充数据
+                for (let i = 0; i <= maxFrameIndex; i++) {
+                    if (photoChunks[i]) {
+                        photoData.set(photoChunks[i], offset);
+                        offset += photoChunks[i].length;
+                    }
                 }
 
                 // 创建图片并显示
@@ -658,20 +690,35 @@
                 showNotification('照片接收成功!');
 
                 // 重置接收状态
-                photoChunks = [];
+                photoChunks = {};
                 receivedBytes = 0;
                 totalBytes = 0;
+                maxFrameIndex = -1;
+                frameCounter = 0;
 
                 return;
             }
 
-            // 处理数据帧
-            // 跳过前两个字节的帧序号，只取图像数据
+            // 处理数据帧 - 跳过前两个字节的帧序号
             const chunkData = data.slice(2);
-            photoChunks.push(chunkData);
+
+            // 存储数据块，使用帧序号作为键
+            photoChunks[frameIndex] = chunkData;
+
+            // 更新最大帧序号
+            if (frameIndex > maxFrameIndex) {
+                maxFrameIndex = frameIndex;
+            }
+
+            // 更新接收字节数
             receivedBytes += chunkData.length;
 
-            // 更新进度条
+            // 更新帧计数器
+            frameCounter++;
+            frameCounterEl.textContent = `帧: ${frameCounter}/${maxFrameIndex + 1}`;
+            frameCounterEl.style.display = 'block';
+
+            // 更新进度条 (如果知道总大小)
             if (totalBytes > 0) {
                 const progress = Math.min(100, Math.floor((receivedBytes / totalBytes) * 100));
                 progressBar.style.width = progress + '%';
@@ -687,9 +734,11 @@
 
             // 重置接收状态
             isReceivingPhoto = true;
-            photoChunks = [];
+            photoChunks = {};
             receivedBytes = 0;
             totalBytes = 0; // 总字节数未知
+            maxFrameIndex = -1;
+            frameCounter = 0;
 
             // 显示接收状态
             photoPlaceholder.style.display = 'none';
@@ -697,6 +746,8 @@
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
             receivingIndicator.style.display = 'block';
+            frameCounterEl.textContent = '帧: 0/0';
+            frameCounterEl.style.display = 'block';
 
             showNotification('开始接收照片...');
 
@@ -706,9 +757,10 @@
                     showNotification('照片接收超时');
                     isReceivingPhoto = false;
                     receivingIndicator.style.display = 'none';
-                    photoChunks = [];
+                    frameCounterEl.style.display = 'none';
+                    photoChunks = {};
                 }
-            }, 15000);
+            }, 30000); // 增加超时时间到30秒
         }
 
         // 断开连接
@@ -732,13 +784,16 @@
                 service = null;
                 characteristic = null;
                 isReceivingPhoto = false;
-                photoChunks = [];
+                photoChunks = {};
+                frameCounter = 0;
+                maxFrameIndex = -1;
 
                 // 更新UI
                 updateStatusUI();
                 photoPlaceholder.style.display = 'block';
                 receivedPhoto.style.display = 'none';
                 receivingIndicator.style.display = 'none';
+                frameCounterEl.style.display = 'none';
 
                 showNotification('已断开连接');
 
@@ -753,6 +808,7 @@
             receivedPhoto.src = '';
             receivedPhoto.style.display = 'none';
             photoPlaceholder.style.display = 'block';
+            frameCounterEl.style.display = 'none';
             showNotification('已清除照片');
         }
 
@@ -761,11 +817,14 @@
             showNotification('设备已断开');
             isConnected = false;
             isReceivingPhoto = false;
-            photoChunks = [];
+            photoChunks = {};
+            frameCounter = 0;
+            maxFrameIndex = -1;
             updateStatusUI();
             photoPlaceholder.style.display = 'block';
             receivedPhoto.style.display = 'none';
             receivingIndicator.style.display = 'none';
+            frameCounterEl.style.display = 'none';
         }
 
         // 显示通知
@@ -785,4 +844,3 @@
 </body>
 
 </html>
-
