@@ -34,7 +34,9 @@ const scanBtn = document.getElementById('scan-btn');
 const receiveBtn = document.getElementById('receive-btn');
 const disconnectBtn = document.getElementById('disconnect-btn');
 const clearBtn = document.getElementById('clear-btn');
+const downloadBtn = document.getElementById('download-btn');
 const photoPlaceholder = document.getElementById('photo-placeholder');
+const photoError = document.getElementById('photo-error');
 const receivedPhoto = document.getElementById('received-photo');
 const progressContainer = document.getElementById('progress-container');
 const progressBar = document.getElementById('progress-bar');
@@ -65,6 +67,7 @@ function initApp() {
     receiveBtn.addEventListener('click', receivePhoto);
     disconnectBtn.addEventListener('click', disconnectDevice);
     clearBtn.addEventListener('click', clearPhoto);
+    downloadBtn.addEventListener('click', downloadPhoto);
 
     showNotification('应用已准备就绪，请扫描设备');
 }
@@ -216,13 +219,29 @@ function handlePhotoData(event) {
         const blob = new Blob([photoData], { type: 'image/jpeg' });
         const url = URL.createObjectURL(blob);
         receivedPhoto.src = url;
-        receivedPhoto.style.display = 'block';
-        photoPlaceholder.style.display = 'none';
 
-        // 更新状态
-        photosReceived++;
-        updateStatusUI();
-        showNotification('照片接收成功!');
+        // 先隐藏所有状态
+        photoPlaceholder.style.display = 'none';
+        photoError.style.display = 'none';
+        receivedPhoto.style.display = 'none';
+
+        // 图片加载成功
+        receivedPhoto.onload = function () {
+            // 更新状态
+            photosReceived++;
+            updateStatusUI();
+            showNotification('照片接收成功!');
+            receivedPhoto.style.display = 'block';
+            downloadBtn.disabled = false; // 启用下载按钮
+        };
+
+        // 图片加载失败
+        receivedPhoto.onerror = function () {
+            photoError.style.display = 'block';
+            downloadBtn.disabled = true; // 禁用下载按钮
+            showNotification('照片传输失败，请重试');
+            URL.revokeObjectURL(url);// 清理无效的URL
+        };
 
         // 重置接收状态
         photoChunks = {};
@@ -230,7 +249,6 @@ function handlePhotoData(event) {
         totalBytes = 0;
         maxFrameIndex = -1;
         frameCounter = 0;
-
         return;
     }
 
@@ -293,9 +311,16 @@ async function receivePhoto() {
             isReceivingPhoto = false;
             receivingIndicator.style.display = 'none';
             frameCounterEl.style.display = 'none';
+            progressContainer.style.display = 'none';
             photoChunks = {};
+
+            // 显示错误提示
+            photoPlaceholder.style.display = 'none';
+            receivedPhoto.style.display = 'none';
+            photoError.style.display = 'block';
+            downloadBtn.disabled = true; // 禁用下载按钮
         }
-    }, 30000); // 增加超时时间到30秒
+    }, 30000); // 超时时间30秒
 }
 
 // 断开连接
@@ -315,6 +340,7 @@ async function disconnectDevice() {
         // 重置状态
         isConnected = false;
         currentDevice = null;
+        downloadBtn.disabled = true; // 禁止下载图片
         server = null;
         service = null;
         characteristic = null;
@@ -340,11 +366,14 @@ async function disconnectDevice() {
 
 // 清除照片
 function clearPhoto() {
-    receivedPhoto.src = '';
+    //
+    downloadBtn.disabled = true; // 禁止下载图片
     receivedPhoto.style.display = 'none';
     photoPlaceholder.style.display = 'block';
+    photoError.style.display = 'none'; // 隐藏错误提示
     frameCounterEl.style.display = 'none';
     showNotification('已清除照片');
+    //receivedPhoto.src = '';
 }
 
 // 设备断开时的回调
@@ -360,6 +389,23 @@ function onDisconnected(event) {
     receivedPhoto.style.display = 'none';
     receivingIndicator.style.display = 'none';
     frameCounterEl.style.display = 'none';
+}
+
+// 下载照片的函数
+function downloadPhoto() {
+    if (!receivedPhoto.src) {
+        showNotification('没有可下载的照片');
+        return;
+    }
+
+    const link = document.createElement('a');
+    link.href = receivedPhoto.src;
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    link.download = `esp32-photo-${timestamp}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showNotification('照片已下载');
 }
 
 // 显示通知

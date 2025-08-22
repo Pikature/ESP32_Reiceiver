@@ -191,6 +191,11 @@ body {
     color: white;
 }
 
+.btn-download {
+    background: linear-gradient(to right, #c0af40, #a3bc17);
+    color: white;
+}
+
 .btn-warning {
     background: linear-gradient(to right, #ff922b, #f76707);
     color: white;

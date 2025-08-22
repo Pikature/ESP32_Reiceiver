@@ -63,6 +63,13 @@
                 <h3>等待接收照片</h3>
                 <p>连接ESP32后，照片将显示在此处</p>
             </div>
+            <!-- 传输失败提示 -->
+            <div class="photo-error" id="photo-error" style="display: none; text-align: center; padding: 30px;">
+                <i class="fas fa-exclamation-triangle"
+                    style="font-size: 4rem; margin-bottom: 20px; color: #ff6b6b;"></i>
+                <h3>传输失败请重试</h3>
+            </div>
+            <!-- 接收到的图片显示 -->
             <img src="" class="received-photo" id="received-photo" alt="接收的照片">
             <div class="frame-counter" id="frame-counter">帧: 0/0</div>
             <div class="progress-container" id="progress-container">
@@ -82,6 +89,9 @@
             </button>
             <button class="btn btn-success" id="receive-btn" disabled>
                 <i class="fas fa-download"></i> 接收照片
+            </button>
+            <button class="btn btn-download" id="download-btn" disabled>
+                <i class="fas fa-save"></i> 下载照片
             </button>
             <button class="btn btn-secondary" id="clear-btn">
                 <i class="fas fa-trash"></i> 清除照片
